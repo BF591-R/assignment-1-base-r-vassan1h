@@ -129,12 +129,22 @@ row_medians <- function(x) {
 #' [1] 1 4 7
 #' summarize_rows(m, mean)
 #' [1] 2 5 8
-summarize_rows <- function(x, fn, na.rm=TRUE) {
-  if (na.rm) {
-    x <- x[!is.na(x)]
+summarize_rows <- function(x, fn, na.rm=FALSE) {
+  apply(x, 1, function(row_i) {
+    if (na.rm) {
+      row_i <- rm_na(row_i)
+    }
+    fn(row_i)
   }
-  return(apply(x, 1, fn))
+  )
 }
+
+#summarize_rows <- function(x, fn, na.rm=FALSE) {
+#  if (na.rm) {
+#    x <- x[!is.na(x)]
+#  }
+#  return(apply(x, 1, fn))
+#}
 
 #' Summarize matrix rows into data frame
 #'
@@ -178,9 +188,9 @@ summarize_matrix <- function(x, na.rm=FALSE) {
   median_val <- summarize_rows(x, median, na.rm)
   min_val <- summarize_rows(x, min, na.rm)
   max_val <- summarize_rows(x, max, na.rm)
-  num_lt_0 <- summarize_rows(x, function(x) sum(x < 0, na.rm=TRUE))
-  num_btw_1_and_5 <- summarize_rows(x, function(x) sum(x > 1 & x < 5, na.rm=TRUE))
-  num_na <- summarize_rows(x, function(x) sum(is.na(x)))
+  num_lt_0 <- summarize_rows(x, function(x){sum(x < 0)},na.rm = na.rm)
+  num_btw_1_and_5 <- summarize_rows(x, function(x) {sum(x > 1 & x < 5)}, na.rm=na.rm)
+  num_na <- summarize_rows(x, function(x) {sum(is.na(x))}, na.rm=na.rm)
   
   result <- data.frame(
     mean = mean_val,
